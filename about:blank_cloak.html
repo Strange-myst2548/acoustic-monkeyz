@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+  Purpose: Minimal demo that loads a user-entered URL into an <iframe>.
+
+  Notes / security:
+  - This file is intentionally simple and demonstrates the basic DOM wiring.
+  - Embedding arbitrary external sites in an iframe is subject to several real-world
+    limitations and risks: X-Frame-Options or CSP on the target may block embedding,
+    mixed-content issues may occur when loading http content from an https page,
+    and loading untrusted pages can expose your users to phishing or malicious content.
+  - Consider validating and sanitizing user input, adding an allowlist, and using
+    the iframe `sandbox` attribute to restrict capabilities. See inline notes below.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Unblocker</title>
+    <style>
+        /* Simple page styles for the demo */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        /* Basic sizing for the text input */
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+        }
+
+        /* The iframe takes most of the viewport height so users can interact with the site */
+        iframe {
+            width: 100%;
+            height: 80vh;
+            border: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Website Unblocker</h1>
+
+    <!--
+        Input and button IDs are referenced by the script below.
+        - #url: user-entered location string. The demo trusts this value (not safe).
+        - #unblockButton: click target that launches the action.
+        Consider replacing the free-text input with a dropdown allowlist for safety.
+    -->
+    <input type="text" id="url" placeholder="Enter website URL">
+    <button id="unblockButton">Unblock</button>
+
+    <!--
+        The iframe where the requested site will be loaded.
+        Security options to consider (choose based on your threat model):
+          - Add `sandbox` to restrict capabilities (e.g. sandbox="" disables scripts/forms/navigation).
+          - Use `sandbox="allow-same-origin allow-forms"` or similar only if you understand the implications.
+          - Many sites prevent being embedded; a blocked load is expected behavior.
+    -->
+    <iframe id="webview" src=""></iframe>
+
+    <script>
+        // Minimal wiring: when the button is clicked, read the input and set iframe.src.
+        // This is intentionally small. The next comments explain improvements to consider.
+
+        document.getElementById('unblockButton').addEventListener('click', function() {
+            var url = document.getElementById('url').value;
+
+            // --- Safety / robustness suggestions (not implemented here) ---
+            // 1) Validate the URL structure (e.g. with try { new URL(url); } catch(e) {...}).
+            // 2) If the user omits a scheme (like "example.com"), consider
+            //    prepending "https://" before using it.
+            // 3) Consider an allowlist of hostnames you permit embedding.
+            // 4) Use the iframe `sandbox` attribute to reduce risk when loading untrusted sites.
+            // 5) Be aware that many sites send headers like X-Frame-Options: DENY which will
+            //    prevent them from being embedded in an iframe.
+
+            // The original demo simply assigns the string into the iframe src.
+            // That keeps the behavior identical to the original, while documenting caveats.
+            document.getElementById('webview').src = url;
+        });
+    </script>
+</body>
+</html>
